@@ -18,7 +18,7 @@ engine = pyttsx3.init()
 
 # Initialize Groq chat model
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-genai.configure(api_key=st.secrets["GROQ_API_KEY"])
+
 model = ChatGroq(
     api_key=GROQ_API_KEY,
     model_name="llama3-70b-8192",

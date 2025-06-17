@@ -5,10 +5,4 @@ langchain-groq
 langchain
 langchain-core
 python-dotenv
-pydantic
-pydantic_core
-PyYAML
-requests
-SQLAlchemy
-tenacity
 PyAudio

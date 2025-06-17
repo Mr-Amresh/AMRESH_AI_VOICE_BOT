@@ -1,4 +1,3 @@
-
 import streamlit as st
 import speech_recognition as sr
 import pyttsx3
@@ -19,6 +18,7 @@ engine = pyttsx3.init()
 
 # Initialize Groq chat model
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+genai.configure(api_key=st.secrets["GROQ_API_KEY"])
 model = ChatGroq(
     api_key=GROQ_API_KEY,
     model_name="llama3-70b-8192",
@@ -123,4 +123,3 @@ if "transcript" in st.session_state and st.session_state["transcript"]:
 if "response" in st.session_state and st.session_state["response"]:
     st.write("**Amresh says:**")
     st.write(st.session_state["response"])
-

@@ -11,8 +11,7 @@ requests
 SQLAlchemy
 tenacity
 rich
-streamlit-webrtc
 speechrecognition
 pyav==12.3.0
-streamlit-webrtc
+streamlit_webrtc
 

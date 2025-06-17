@@ -1,1 +1,6 @@
 espeak
+portaudio19-dev
+python3-dev
+libasound-dev
+libportaudio2
+build-essential

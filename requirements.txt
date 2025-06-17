@@ -1,6 +1,6 @@
 streamlit==1.35.0
-speechrecognition==3.10.0
+speechrecognition==3.10.4
 pyttsx3==2.90
-groq==0.25.0
+langchain-grok==0.2.0
 langchain==0.3.25
 python-dotenv==1.0.0

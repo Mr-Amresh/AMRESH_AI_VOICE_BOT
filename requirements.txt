@@ -4,14 +4,5 @@ langchain-groq
 langchain
 langchain-core
 python-dotenv
-pydantic
-pydantic_core
-PyYAML
-requests
-SQLAlchemy
-tenacity
-rich
-speechrecognition
-pyav==12.3.0
-streamlit_webrtc
+streamlit-webrtc
 

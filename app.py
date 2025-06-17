@@ -1,11 +1,14 @@
 import streamlit as st
-import speech_recognition as sr
 import pyttsx3
 from langchain_groq import ChatGroq
 from langchain.prompts import PromptTemplate
 import logging
 import os
 from dotenv import load_dotenv
+from streamlit_webrtc import webrtc_streamer, WebRtcMode, RTCConfiguration
+import queue
+import av
+import speech_recognition as sr
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -18,7 +21,6 @@ engine = pyttsx3.init()
 
 # Initialize Groq chat model
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-
 model = ChatGroq(
     api_key=GROQ_API_KEY,
     model_name="llama3-70b-8192",
@@ -66,22 +68,55 @@ def get_grok_response(question):
 
 def recognize_speech():
     recognizer = sr.Recognizer()
-    with sr.Microphone() as source:
-        st.info("Listening...")
-        recognizer.adjust_for_ambient_noise(source)
+    audio_queue = queue.Queue()
+
+    def process_audio(frame):
+        audio_queue.put(frame.to_ndarray().tobytes())
+        return frame
+
+    RTC_CONFIG = RTCConfiguration({"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]})
+    webrtc_ctx = webrtc_streamer(
+        key="speech-input",
+        mode=WebRtcMode.RECVONLY,
+        audio_receiver_size=1024,
+        rtc_configuration=RTC_CONFIG,
+        media_stream_constraints={"audio": True, "video": False},
+        audio_frame_callback=process_audio
+    )
+
+    if webrtc_ctx.state.playing:
+        st.info("Listening... Please allow microphone access if prompted.")
         try:
-            audio = recognizer.listen(source, timeout=5)
+            audio_data = b""
+            timeout = 5  # seconds
+            start_time = st.session_state.get("start_time", None)
+            if start_time is None:
+                st.session_state["start_time"] = time.time()
+
+            while time.time() - st.session_state["start_time"] < timeout:
+                if not audio_queue.empty():
+                    audio_data += audio_queue.get()
+                time.sleep(0.1)
+
+            if not audio_data:
+                return "No speech detected. Please try again."
+
+            audio = sr.AudioData(audio_data, sample_rate=48000, sample_width=2)
             text = recognizer.recognize_google(audio)
             st.success("Transcription successful!")
             logger.info(f"Transcribed: {text}")
             return text
-        except sr.WaitTimeoutError:
-            return "No speech detected. Please try again."
         except sr.UnknownValueError:
             return "Could not understand the audio. Please try again."
         except Exception as e:
             logger.error(f"Speech recognition error: {str(e)}")
             return f"Error: {str(e)}"
+        finally:
+            if webrtc_ctx.state.playing:
+                webrtc_ctx.state.playing = False
+            st.session_state.pop("start_time", None)
+    else:
+        return "Microphone access not enabled. Please allow microphone access and try again."
 
 def speak_response(response):
     try:

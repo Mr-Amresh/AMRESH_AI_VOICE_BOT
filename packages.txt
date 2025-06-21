@@ -5,3 +5,4 @@ libasound-dev
 libportaudio2
 build-essential
 alsa-utils
+alsa-base

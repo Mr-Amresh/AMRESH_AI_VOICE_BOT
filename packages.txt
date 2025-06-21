@@ -4,3 +4,4 @@ python3-dev
 libasound-dev
 libportaudio2
 build-essential
+alsa-utils
